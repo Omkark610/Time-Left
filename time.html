@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Left to Live - Decade Progress Bars</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding-top: 50px;
+        }
+        input[type="date"] {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .progress-container {
+            margin-top: 20px;
+        }
+        .progress-bar-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px; /* Space between progress bars */
+        }
+        progress {
+            width: 100%;
+            height: 30px;
+            border-radius: 5px;
+        }
+        progress::-webkit-progress-bar {
+            background-color: grey; /* Grey background for not started */
+        }
+        progress::-webkit-progress-value {
+            background-color: grey; /* Default color for not started */
+        }
+        progress.completed::-webkit-progress-value {
+            background-color: #39FF14; /* Green for completed */
+        }
+        progress.in-progress::-webkit-progress-value {
+            background-color: #39FF14; /* Neon Green for in-progress */
+        }
+        .decade-label {
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        .age-info {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Time Left to Live</h1>
+        <p>Enter your Date of Birth.</p>
+        
+        <input type="month" id="dob" onchange="calculateProgress()">
+        <div id="age-info" class="age-info"></div>
+        
+        <div class="progress-container" id="progress-container"></div>
+        
+        
+    </div>
+
+    <script>
+        function calculateProgress() {
+            const dobInput = document.getElementById('dob').value;
+            if (!dobInput) return;
+            
+            const dob = new Date(dobInput);
+            const currentDate = new Date();
+            const avgLifeExpectancy = 100; // Set average life expectancy to 100 years
+
+            // Calculate age in years
+            const ageInMilliseconds = currentDate - dob;
+            const ageInYears = ageInMilliseconds / (1000 * 60 * 60 * 24 * 365.25);
+
+            // Calculate the progress (percentage)
+            const completedYears = Math.floor(ageInYears);
+            const remainingYears = Math.max(avgLifeExpectancy - ageInYears, 0);
+
+            // Display the progress bars for each decade
+            const progressContainer = document.getElementById('progress-container');
+            progressContainer.innerHTML = ''; // Clear previous progress bars
+
+            for (let i = 0; i < 10; i++) {
+                const barContainer = document.createElement('div');
+                barContainer.classList.add('progress-bar-container');
+
+                // Create the progress bar element
+                const progressBar = document.createElement('progress');
+                progressBar.max = 100; // Max value for progress (100%)
+                
+                // Determine the start and end of the current decade
+                const startYear = i * 10 + 1;
+                const endYear = (i + 1) * 10;
+
+                let progress = 0;
+                let progressClass = ''; // Default class for not started decades
+
+                // If the age falls within this decade, calculate how much of the decade is completed
+                if (completedYears >= startYear) {
+                    if (completedYears >= endYear) {
+                        progress = 100; // The decade is fully completed
+                        progressClass = 'completed'; // Set completed class
+                    } else {
+                        // Calculate the progress within the decade
+                        progress = ((completedYears - startYear) / 10) * 100;
+                        progressClass = 'in-progress'; // Set in-progress class
+                    } 
+                } else {
+                        // Calculate the progress within the decade
+                        progress = 0;
+                        progressClass = 'in-progress'; // Set in-progress class
+                 } 
+
+                // Set the progress value and class
+                progressBar.value = progress;
+                progressBar.classList.add(progressClass);
+
+                // Create the decade label
+                const decadeLabel = document.createElement('div');
+                decadeLabel.classList.add('decade-label');
+                decadeLabel.textContent = `${startYear} - ${endYear}`;
+
+                // Append the progress bar and label to the container
+                barContainer.appendChild(progressBar);
+                barContainer.appendChild(decadeLabel);
+
+                // Append the container to the progress container
+                progressContainer.appendChild(barContainer);
+            }
+
+            // Show the age info
+            const ageInfo = document.getElementById('age-info');
+            ageInfo.innerHTML = `You are ${Math.floor(ageInYears)} years old. <br> Time left to live: ${Math.round(remainingYears)} years.`;
+        }
+    </script>
+
+</body>
+</html>
